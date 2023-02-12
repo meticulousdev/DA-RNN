@@ -49,5 +49,4 @@ e = Dense(1)(tanh_act)
 
 # Eqn. (9)
 attn = Softmax()(Permute((2, 1))(e))
-
-print(attn)
+# print(attn)
