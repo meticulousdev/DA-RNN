@@ -1,5 +1,5 @@
 # %%
-from input_attention import *
+from test_model import *
 
 from tensorflow.keras.layers import LSTM
 
