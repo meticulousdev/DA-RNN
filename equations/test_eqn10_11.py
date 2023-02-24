@@ -1,9 +1,15 @@
 # %%
-from test_model import *
+from test_model_separated_class import *
 import random
 
 from tensorflow.keras.layers import LSTM
 
+
+# %%
+random.seed(42)
+
+print(tf.__version__)
+tf.random.set_seed(42)
 
 # %%
 batch_size = 7
@@ -16,14 +22,6 @@ ele02 = [ele01 for _ in range(T)]
 ele03 = [ele02 for _ in range(batch_size)]
 
 X = tf.constant(ele03, dtype=tf.float32)
-
-hs_ele01 = [random.random() for _ in range(m)]
-hs_ele02 = [hs_ele01 for _ in range(batch_size)]
-hidden_state = tf.constant(hs_ele02, dtype=tf.float32)
-
-cs_ele01 = [random.random() for _ in range(m)]
-cs_ele02 = [cs_ele01 for _ in range(batch_size)]
-cell_state = tf.constant(cs_ele02, dtype=tf.float32)
 
 # %%
 # TODO
@@ -43,18 +41,25 @@ for t in range(T):
 # %%
 # TODO: multiply and Dense?
 # DONE: Dense - parameters to learn
+hidden_state = tf.zeros((batch_size, m))
+cell_state = tf.zeros((batch_size, m))
+
 input_attention = InputAttention(T)
-attn = input_attention(hidden_state, cell_state, X)
 
-t = 1
-# Eqn. (10)
-X_tilde_t = tf.multiply(attn, X[:, None, t, :])
-print(X_tilde_t.shape)
+for t in range(T):
+    attn = input_attention(hidden_state, cell_state, X)
+
+    # Eqn. (10)
+    X_tilde_t = tf.multiply(attn, X[:, None, t, :])
+
+    # Eqn. (11)
+    hidden_state, _, cell_state = LSTM(m, return_state=True)(X_tilde_t, initial_state=[hidden_state, cell_state])
+    
+    X_encoded.append(hidden_state[:, None, :])
+    
+    print(f"{t} {attn.shape} {X_tilde_t.shape} {hidden_state.shape}")
 
 # %%
-# Eqn. (11)
-hidden_state, _, cell_state = LSTM(m, return_state=True)(X_tilde_t, initial_state=[hidden_state, cell_state])
-X_encoded.append(hidden_state[:, None, :])
-
-# %%
-tf.concat(X_encoded, axis=1)
+# print(X_encoded)
+ret = tf.concat(X_encoded, axis=1)
+print(ret.shape)
