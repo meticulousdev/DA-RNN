@@ -12,13 +12,16 @@ from tensorflow.keras.layers import (
     Layer
 )
 
-class InputAttention(Layer):
-    def __init__(self) -> None:
-        # TODO super.__init__(name=???)
-        super.__init__(name='input_attention')
 
-    # TODO call
-    # TODO return type
+# TODO super().__init__(name='input_attention')
+#      super().__init__(name='encoder_input')
+# TODO get_config
+class InputAttention(Layer):
+    def __init__(self, T: int) -> None:
+        super().__init__()
+
+        self.T = T
+
     def call(self, hidden_state, cell_state, X):
         # X (batch size, T, n)
         #
@@ -36,8 +39,8 @@ class InputAttention(Layer):
         n = X.shape[2]
 
         concat_hs = K.repeat(tf.concat([hidden_state, cell_state], axis=-1), n)
-        hs = Dense(T)(concat_hs)
-        ux = Dense(T)(Permute((2, 1))(X))
+        hs = Dense(self.T)(concat_hs)
+        ux = Dense(self.T)(Permute((2, 1))(X))
 
         add_hs_ux = Add()([hs, ux])
         tanh_act = Activation(activation='tanh')(add_hs_ux)
@@ -47,19 +50,24 @@ class InputAttention(Layer):
         attn = Softmax()(Permute((2, 1))(e))
         # print(attn)
         return attn
-    
-    # TODO get_config ???
-    # def get_config(self):
-    #     config = super().get_config().copy()
-    #     config.update({
-    #         'T': self.T
-    #     })
-    #     return config
 
 
 class Encoder(Layer):
-    def __init__(self) -> None:
+    def __init__(self, T: int, m: int) -> None:
         super().__init__()
+
+        self.T = T
+        self.m = m
+
+    def __call__(self, X):
+        batch_size = K.shape(X)[0]
+
+        hidden_state = tf.zeros((batch_size, self.m))
+        cell_state = tf.zeros((batch_size, self.m))
+
+        X_encoded = []        
+        for t in range(self.T):
+            attn_t = self.input_attention(hidden_state, cell_state, X)
 
 
 if __name__ == "__main__":
