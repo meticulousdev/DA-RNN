@@ -34,9 +34,11 @@ class Encoder(Layer):
             attn_t = self.input_attention(hidden_state, cell_state, X)
 
     def input_encoder(self):
+        # hidden_state (batch size, m)
+        # cell_state (batch size, m)    
         # X (batch size, T, n)
         #
-        # concat_hs (batach, n, 2m)
+        # concat_hs (batch size, n, 2m)
         # hs (batch size, n, T)
         # ux (batch size, n, T)
         #
