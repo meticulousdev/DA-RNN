@@ -130,3 +130,5 @@ print(attn_input_act.shape)
 attn_input_act = Softmax()(Permute((2, 1))(e_act))
 print(attn_input_act[:, 0, :])
 print(attn_input_act.shape)
+print(type(attn_input_act))
+# <class 'tensorflow.python.framework.ops.EagerTensor'>
