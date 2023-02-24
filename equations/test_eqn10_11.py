@@ -45,6 +45,7 @@ hidden_state = tf.zeros((batch_size, m))
 cell_state = tf.zeros((batch_size, m))
 
 input_attention = InputAttention(T)
+input_lstm = LSTM(m, return_state=True)
 
 for t in range(T):
     attn_t = input_attention(hidden_state, cell_state, X)
@@ -53,11 +54,12 @@ for t in range(T):
     X_tilde_t = tf.multiply(attn_t, X[:, None, t, :])
 
     # Eqn. (11)
-    hidden_state, _, cell_state = LSTM(m, return_state=True)(X_tilde_t, initial_state=[hidden_state, cell_state])
-    
+
+    hidden_state, _, cell_state = input_lstm(X_tilde_t, initial_state=[hidden_state, cell_state])
+
     X_encoded.append(hidden_state[:, None, :])
-    
-    print(f"{t} {attn_t.shape} {X_tilde_t.shape} {hidden_state.shape}")
+    print(f"{id(input_lstm)} {id(input_attention)}")    
+    print(f"{t} {attn_t.shape} {X_tilde_t.shape} {hidden_state.shape}\n")
 
 # %%
 # print(X_encoded)
