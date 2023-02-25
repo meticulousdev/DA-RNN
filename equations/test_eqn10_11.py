@@ -54,7 +54,6 @@ for t in range(T):
     X_tilde_t = tf.multiply(attn_t, X[:, None, t, :])
 
     # Eqn. (11)
-
     hidden_state, _, cell_state = input_lstm(X_tilde_t, initial_state=[hidden_state, cell_state])
 
     X_encoded.append(hidden_state[:, None, :])
