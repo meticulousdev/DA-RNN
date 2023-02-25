@@ -73,6 +73,8 @@ class Encoder(Layer):
         #
         # attn_t (batch size, 1, n)
         # X_tilde_t (batch size, 1, n)
+        # X_encoded.append(hidden_state[:, None, :]) 
+        # (batch size, 1, m) x T
         # encoder_ret (batch size, T, m)
 
         batch_size = K.shape(X)[0]
@@ -95,6 +97,7 @@ class Encoder(Layer):
         encoder_ret = tf.concat(X_encoded, axis=1)
         return encoder_ret
 
+
 if __name__ == "__main__":
     batch_size = 7
     T = 5
@@ -107,10 +110,6 @@ if __name__ == "__main__":
 
     X = tf.constant(ele03, dtype=tf.float32)
 
-    hs_ele01 = [random.random() for _ in range(m)]
-    hs_ele02 = [hs_ele01 for _ in range(batch_size)]
-    hidden_state = tf.constant(hs_ele02, dtype=tf.float32)
-
-    cs_ele01 = [random.random() for _ in range(m)]
-    cs_ele02 = [cs_ele01 for _ in range(batch_size)]
-    cell_state = tf.constant(cs_ele02, dtype=tf.float32)
+    da_rnn_encoder = Encoder(T, m)
+    ret = da_rnn_encoder(X)
+    print(ret)

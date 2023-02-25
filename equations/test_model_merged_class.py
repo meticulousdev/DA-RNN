@@ -9,7 +9,8 @@ from tensorflow.keras.layers import (
     Softmax, 
     Activation, 
     Add,
-    Layer
+    Layer,
+    LSTM
 )
 
 
@@ -22,8 +23,21 @@ class Encoder(Layer):
 
         self.T = T
         self.m = m
+        
+        self.input_lstm = LSTM(m, return_state=True)
 
     def __call__(self, X):
+        # X (batch size, T, n) 
+        # 
+        # hidden_state (batch size, m)
+        # cell_state (batch size, m)
+        #
+        # attn_t (batch size, 1, n)
+        # X_tilde_t (batch size, 1, n)
+        # X_encoded.append(hidden_state[:, None, :]) 
+        # (batch size, 1, m) x T
+        # encoder_ret (batch size, T, m)
+
         batch_size = K.shape(X)[0]
 
         hidden_state = tf.zeros((batch_size, self.m))
@@ -33,7 +47,19 @@ class Encoder(Layer):
         for t in range(self.T):
             attn_t = self.input_attention(hidden_state, cell_state, X)
 
-    def input_encoder(self):
+            # Eqn. (10)
+            X_tilde_t = tf.multiply(attn_t, X[:, None, t, :])
+
+            # Eqn. (11)
+            hidden_state, _, cell_state = self.input_lstm(X_tilde_t, initial_state=[hidden_state, cell_state])
+
+            X_encoded.append(hidden_state[:, None, :])
+        
+        encoder_ret = tf.concat(X_encoded, axis=1)
+        return encoder_ret
+
+
+    def input_attention(self, hidden_state, cell_state, X):
         # hidden_state (batch size, m)
         # cell_state (batch size, m)    
         # X (batch size, T, n)
@@ -77,10 +103,6 @@ if __name__ == "__main__":
 
     X = tf.constant(ele03, dtype=tf.float32)
 
-    hs_ele01 = [random.random() for _ in range(m)]
-    hs_ele02 = [hs_ele01 for _ in range(batch_size)]
-    hidden_state = tf.constant(hs_ele02, dtype=tf.float32)
-
-    cs_ele01 = [random.random() for _ in range(m)]
-    cs_ele02 = [cs_ele01 for _ in range(batch_size)]
-    cell_state = tf.constant(cs_ele02, dtype=tf.float32)
+    da_rnn_encoder = Encoder(T, m)
+    ret = da_rnn_encoder(X)
+    print(ret)
