@@ -92,6 +92,11 @@ class Encoder(Layer):
 
 
 if __name__ == "__main__":
+    random.seed(42)
+
+    print(tf.__version__)
+    tf.random.set_seed(42)
+
     batch_size = 7
     T = 5
     n = 4
