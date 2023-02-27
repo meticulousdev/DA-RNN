@@ -139,7 +139,7 @@ class TemperalAttention(Layer):
         return beta
 
 
-def test_encoder_seprated_class(batch_size: int, T: int, n: int, m: int):
+def test_encoder_separated_class(batch_size: int, T: int, n: int, m: int):
     random.seed(42)
 
     print(tf.__version__)
@@ -162,6 +162,6 @@ if __name__ == "__main__":
     n = 4
     m = 3
 
-    ret = test_encoder_seprated_class(batch_size, T, n, m)
+    ret = test_encoder_separated_class(batch_size, T, n, m)
     print(ret)
     
