@@ -65,7 +65,7 @@ class Encoder(Layer):
         self.input_attention = InputAttention(self.T)
         self.input_lstm = LSTM(m, return_state=True)
 
-    def __call__(self, X):
+    def call(self, X):
         # X (batch size, T, n) 
         # 
         # hidden_state (batch size, m)
@@ -96,6 +96,47 @@ class Encoder(Layer):
         
         encoder_ret = tf.concat(X_encoded, axis=1)
         return encoder_ret
+
+
+class TemperalAttention(Layer):
+    def __init__(self, m: int) -> None:
+        super().__init__()
+
+        self.m = m
+
+    def call(self, hidden_state, cell_state, X_encoded):
+        # X_encoded (batch size, T, m)
+        # hidden_state (T, p)
+        # cell_state (T, p)
+        #
+        # tf.concat (batch size, 2p)
+        # concat_ds (batch size, T, 2p)
+        # ds (batch size, T, m)
+        # uh (batch size, T, m)
+        # 
+        # add_ds_uh (batch size, T, m)
+        # tanh_act (batch size, T, m)
+        # l (batch size, T, 1)
+        #
+        # beta (batch size, T, 1)
+
+        p = X_encoded.shape[1]
+        
+        # Eqn. (12)
+        concat_ds = K.repeat(tf.concat([hidden_state, cell_state], axis=-1), p)
+
+        ds = Dense(self.m)(concat_ds)
+        uh = Dense(self.m)(X_encoded)
+
+        add_ds_uh = Add()([ds, uh])
+
+        tanh_act = Activation(activation='tanh')(add_ds_uh)
+
+        l = Dense(1)(tanh_act)
+
+        # Eqn. (13)
+        beta = Softmax(axis=1)(l)
+        return beta
 
 
 if __name__ == "__main__":
