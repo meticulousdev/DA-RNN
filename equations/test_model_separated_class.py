@@ -139,16 +139,11 @@ class TemperalAttention(Layer):
         return beta
 
 
-if __name__ == "__main__":
+def test_encoder_seprated_class(batch_size: int, T: int, n: int, m: int):
     random.seed(42)
 
     print(tf.__version__)
     tf.random.set_seed(42)
-
-    batch_size = 7
-    T = 5
-    n = 4
-    m = 3
 
     ele01 = [random.random() for _ in range(n)]
     ele02 = [ele01 for _ in range(T)]
@@ -158,4 +153,15 @@ if __name__ == "__main__":
 
     da_rnn_encoder = Encoder(T, m)
     ret = da_rnn_encoder(X)
+    return ret
+
+
+if __name__ == "__main__":
+    batch_size = 7
+    T = 5
+    n = 4
+    m = 3
+
+    ret = test_encoder_seprated_class(batch_size, T, n, m)
     print(ret)
+    
