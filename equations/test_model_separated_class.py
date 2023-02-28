@@ -36,7 +36,7 @@ class InputAttention(Layer):
         # tanh_act_add (batch size, n, T)
         # e_add (batch size, n, 1)
         #
-        # attn_add (batch size, 1, n)
+        # alpha_add (batch size, 1, n)
 
         # Eqn. (8)
         n = X.shape[2]
@@ -50,9 +50,9 @@ class InputAttention(Layer):
         e = Dense(1)(tanh_act)
 
         # Eqn. (9)
-        attn = Softmax()(Permute((2, 1))(e))
-        # print(attn)
-        return attn
+        alpha = Softmax()(Permute((2, 1))(e))
+        # print(alpha)
+        return alpha
 
 
 class Encoder(Layer):
@@ -71,7 +71,7 @@ class Encoder(Layer):
         # hidden_state (batch size, m)
         # cell_state (batch size, m)
         #
-        # attn_t (batch size, 1, n)
+        # alpha_t (batch size, 1, n)
         # X_tilde_t (batch size, 1, n)
         # X_encoded.append(hidden_state[:, None, :]) 
         # (batch size, 1, m) x T
@@ -84,10 +84,10 @@ class Encoder(Layer):
 
         X_encoded = []        
         for t in range(self.T):
-            attn_t = self.input_attention(hidden_state, cell_state, X)
+            alpha_t = self.input_attention(hidden_state, cell_state, X)
 
             # Eqn. (10)
-            X_tilde_t = tf.multiply(attn_t, X[:, None, t, :])
+            X_tilde_t = tf.multiply(alpha_t, X[:, None, t, :])
 
             # Eqn. (11)
             hidden_state, _, cell_state = self.input_lstm(X_tilde_t, initial_state=[hidden_state, cell_state])
