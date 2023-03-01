@@ -38,6 +38,10 @@ t = 1
 h_encoded = []
 # %%
 # beta_t (batch size, T, 1)
+# c_t (batch size, 1, m)
+# yc_concat (batch size, 1, y_dim + m)
+# y_tilde (batch size, 1, 1)
+
 beta_t = temperal_attention(hidden_state, cell_state, X_encoded)
 
 # TODO transpose_a
@@ -45,12 +49,14 @@ beta_t = temperal_attention(hidden_state, cell_state, X_encoded)
 c_t = tf.matmul(beta_t, X_encoded, transpose_a=True)
 
 # Eqn. (15)
-yc_concat = tf.concat(Y[:, None, t, :], c_t, axis=-1)
+yc_concat = tf.concat([Y[:, None, t, :], c_t], axis=-1)
 y_tilde = Dense(1)(yc_concat)
 
 # %%
 print(f"beta_t.shape: {beta_t.shape}")
 print(f"c_t.shape: {c_t.shape}")
+print(f"yc_concat.shape: {yc_concat.shape}")
+print(f"y_tilde.shape: {y_tilde.shape}")
 
 # %%
 # temperal_attention = TemperalAttention(m)
