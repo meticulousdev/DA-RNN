@@ -27,7 +27,6 @@ cell_state = tf.constant([[random.random() for _ in range(p)] for _ in range(bat
 
 X_encoded = tf.ones((batch_size, T, m))
 
-# TODO T or T - 1
 Y = tf.ones((batch_size, T - 1, y_dim))
 
 # %%
