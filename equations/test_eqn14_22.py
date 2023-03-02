@@ -4,7 +4,7 @@ import random
 import tensorflow as tf
 import tensorflow.keras.backend as K
 
-from tensorflow.keras.layers import Dense, LSTM
+from tensorflow.keras.layers import Dense, LSTM, Permute
 
 from test_model_separated_class import TemperalAttention
 
@@ -44,9 +44,24 @@ h_encoded = []
 
 beta_t = temperal_attention(hidden_state, cell_state, X_encoded)
 
+print(f"beta_t.shape: {beta_t.shape}")
+print(f"X_encoded.shape: {X_encoded.shape}")
+print(f"Permute((2, 1))(beta_t).shape: {Permute((2, 1))(beta_t).shape}")
+print(f"tf.transpose(beta_t.shape): {tf.transpose(beta_t).shape}")
+
+# %%
 # TODO transpose_a
+# transpose_a, transpose_b
 # Eqn. (14)
+beta_t = temperal_attention(hidden_state, cell_state, X_encoded)
 c_t = tf.matmul(beta_t, X_encoded, transpose_a=True)
+
+beta_t = temperal_attention(hidden_state, cell_state, X_encoded)
+c_t_p = tf.matmul(Permute((2, 1))(beta_t), X_encoded)
+
+# %%
+print(c_t)
+print(c_t_p)
 
 # Eqn. (15)
 yc_concat = tf.concat([Y[:, None, t, :], c_t], axis=-1)
