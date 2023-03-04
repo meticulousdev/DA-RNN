@@ -55,13 +55,12 @@ print(f"tf.transpose(beta_t.shape): {tf.transpose(beta_t).shape}")
 beta_t = temperal_attention(hidden_state, cell_state, X_encoded)
 c_t = tf.matmul(beta_t, X_encoded, transpose_a=True)
 
-beta_t = temperal_attention(hidden_state, cell_state, X_encoded)
-c_t_p = tf.matmul(Permute((2, 1))(beta_t), X_encoded)
+# beta_t = temperal_attention(hidden_state, cell_state, X_encoded)
+# c_t_p = tf.matmul(Permute((2, 1))(beta_t), X_encoded)
 
+# print(c_t)
+# print(c_t_p)
 # %%
-print(c_t)
-print(c_t_p)
-
 # Eqn. (15)
 yc_concat = tf.concat([Y[:, None, t, :], c_t], axis=-1)
 y_tilde = Dense(1)(yc_concat)
@@ -73,8 +72,12 @@ print(f"yc_concat.shape: {yc_concat.shape}")
 print(f"y_tilde.shape: {y_tilde.shape}")
 
 # %%
-# temperal_attention = TemperalAttention(m)
-# for t in range(T):
-#     beta_t = temperal_attention(hidden_state, cell_state, X_encoded)
-
-#     c_t = tf.matmul(beta_t, X_encoded)
+temperal_attention = TemperalAttention(m)
+for t in range(T):
+    # Eqn. (14)
+    beta_t = temperal_attention(hidden_state, cell_state, X_encoded)
+    c_t = tf.matmul(beta_t, X_encoded)
+    
+    # Eqn. (15)
+    yc_concat = tf.concat([Y[:, None, t, :], c_t], axis=-1)
+    y_tilde = Dense(1)(yc_concat)
