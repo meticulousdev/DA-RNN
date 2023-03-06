@@ -17,6 +17,7 @@ from tensorflow.keras.layers import (
 # TODO super().__init__(name='input_attention')
 #      super().__init__(name='encoder_input')
 # TODO get_config
+# TODO call or __call__
 class Encoder(Layer):
     def __init__(self, T: int, m: int) -> None:
         super().__init__()

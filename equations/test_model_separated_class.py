@@ -17,6 +17,7 @@ from tensorflow.keras.layers import (
 # TODO super().__init__(name='input_attention')
 #      super().__init__(name='encoder_input')
 # TODO get_config
+# TODO call or __call__
 class InputAttention(Layer):
     def __init__(self, T: int) -> None:
         super().__init__()
@@ -137,6 +138,22 @@ class TemperalAttention(Layer):
         # Eqn. (13)
         beta = Softmax(axis=1)(l)
         return beta
+
+
+class Decoder(Layer):
+    def __init__(self, T: int, m: int, p: int, y_dim: int) -> None:
+        super().__init__()
+
+        self.T = T
+        self.m = m
+        self.p = p
+        self.y_dim = y_dim
+
+        temperal_attention = TemperalAttention(self.m)
+        decoder_lstm = LSTM(self.p, return_state=True)
+    
+    def call():
+        print()
 
 
 def test_encoder_separated_class(batch_size: int, T: int, n: int, m: int):
