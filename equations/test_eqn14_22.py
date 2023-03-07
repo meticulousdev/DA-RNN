@@ -91,13 +91,15 @@ for t in range(T - 1):
 # Eqn. (22)
 dc_concat = tf.concat([hidden_state[:, None, :], c_t], axis=-1)
 y_hat_T = Dense(y_dim)(Dense(p)(dc_concat))
+y_hat_T_squeeze = tf.squeeze(y_hat_T, axis=1)
 
 print(f"beta_t.shape: {beta_t.shape}")
 print(f"c_t.shape: {c_t.shape}")
 print(f"yc_concat.shape: {yc_concat.shape}")
 print(f"y_tilde.shape: {y_tilde.shape}")
 print(f"dc_concat.shape: {dc_concat.shape}")
-print(f"y_hat_T.shape: {y_hat_T.shape}\n")
+print(f"y_hat_T.shape: {y_hat_T.shape}")
+print(f"y_hat_T_squeeze.shape: {y_hat_T_squeeze.shape}\n")
 
 # for loop
 # beta_t.shape: (12, 5, 1)
@@ -106,3 +108,4 @@ print(f"y_hat_T.shape: {y_hat_T.shape}\n")
 # y_tilde.shape: (12, 1, 1)
 # dc_concat.shape: (12, 1, 10)
 # y_hat_T.shape: (12, 1, 3)
+# ret.shape: (12, 3)
