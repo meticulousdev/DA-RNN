@@ -201,7 +201,6 @@ def test_encoder_separated_class(batch_size: int, T: int, n: int, m: int):
 
 
 def test_decoder_separated_class(batch_size: int, T: int, m: int, p: int, y_dim: int):
-    # %%
     random.seed(42)
 
     print(tf.__version__)
@@ -227,6 +226,6 @@ if __name__ == "__main__":
     ret_encoder = test_encoder_separated_class(batch_size, T, n, m)
     print(ret_encoder)
     print()
-    
+
     ret_decoder = test_decoder_separated_class(batch_size, T, m, p, y_dim)
     print(ret_decoder)
