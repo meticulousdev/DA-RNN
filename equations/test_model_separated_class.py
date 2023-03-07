@@ -24,7 +24,7 @@ class InputAttention(Layer):
 
         self.T = T
 
-    def call(self, hidden_state, cell_state, X):
+    def __call__(self, hidden_state, cell_state, X):
         # hidden_state (batch size, m)
         # cell_state (batch size, m)    
         # X (batch size, T, n)
@@ -66,7 +66,7 @@ class Encoder(Layer):
         self.input_attention = InputAttention(self.T)
         self.input_lstm = LSTM(m, return_state=True)
 
-    def call(self, X):
+    def __call__(self, X):
         # X (batch size, T, n) 
         # 
         # hidden_state (batch size, m)
@@ -105,7 +105,7 @@ class TemperalAttention(Layer):
 
         self.m = m
 
-    def call(self, hidden_state, cell_state, X_encoded):
+    def __call__(self, hidden_state, cell_state, X_encoded):
         # X_encoded (batch size, T, m)
         # hidden_state (T, p)
         # cell_state (T, p)
@@ -149,11 +149,38 @@ class Decoder(Layer):
         self.p = p
         self.y_dim = y_dim
 
-        temperal_attention = TemperalAttention(self.m)
-        decoder_lstm = LSTM(self.p, return_state=True)
+        self.temperal_attention = TemperalAttention(self.m)
+        self.decoder_lstm = LSTM(self.p, return_state=True)
     
-    def call():
-        print()
+    def __call__(self, X_encoded, Y):
+        # beta_t (batch size, T, 1)
+        # c_t (batch size, 1, m)
+        # yc_concat (batch size, 1, y_dim + m)
+        # y_tilde (batch size, 1, 1)
+        # dc_concat (batch size, 1, m + p)
+        # y_hat_T (batch size, 1, y_dim)
+
+        batch_size = K.shape(X_encoded)[0]
+        hidden_state = tf.zeros((batch_size, self.p))
+        cell_state = tf.zeros((batch_size, self.p))
+
+        for t in range(self.T - 1):
+            # Eqn. (14)
+            beta_t = self.temperal_attention(hidden_state, cell_state, X_encoded)
+            c_t = tf.matmul(beta_t, X_encoded, transpose_a=True)
+
+            # Eqn. (15)
+            yc_concat = tf.concat([Y[:, None, t, :], c_t], axis=-1)
+            y_tilde = Dense(1)(yc_concat)
+
+            # Eqn. (16) (Eqn. (17) - (21))
+            hidden_state, _, cell_state = self.decoder_lstm(y_tilde, initial_state=[hidden_state, cell_state])
+
+        # Eqn. (22)
+        dc_concat = tf.concat([hidden_state[:, None, :], c_t], axis=-1)
+        y_hat_T = Dense(self.y_dim)(Dense(self.p)(dc_concat))
+        y_hat_T = tf.squeeze(y_hat_T, axis=1)
+        return y_hat_T
 
 
 def test_encoder_separated_class(batch_size: int, T: int, n: int, m: int):
@@ -173,12 +200,33 @@ def test_encoder_separated_class(batch_size: int, T: int, n: int, m: int):
     return ret
 
 
+def test_decoder_separated_class(batch_size: int, T: int, m: int, p: int, y_dim: int):
+    # %%
+    random.seed(42)
+
+    print(tf.__version__)
+    tf.random.set_seed(42)
+
+    X_encoded = tf.ones((batch_size, T, m))
+
+    Y = tf.ones((batch_size, T - 1, y_dim))
+    da_rnn_decoder = Decoder(T, m, p, y_dim)
+    ret = da_rnn_decoder(X_encoded, Y)
+    return ret
+
+
 if __name__ == "__main__":
-    batch_size = 7
+    batch_size = 12
     T = 5
     n = 4
-    m = 3
+    p = 6
+    m = 4
 
-    ret = test_encoder_separated_class(batch_size, T, n, m)
-    print(ret)
+    y_dim = 3
+
+    ret_encoder = test_encoder_separated_class(batch_size, T, n, m)
+    print(ret_encoder)
+    print()
     
+    ret_decoder = test_decoder_separated_class(batch_size, T, m, p, y_dim)
+    print(ret_decoder)
