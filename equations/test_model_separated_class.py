@@ -1,17 +1,17 @@
 import random
+from typing import List, Optional
 
 import tensorflow as tf
 import tensorflow.keras.backend as K
 
-from tensorflow.keras.layers import (
-    Dense, 
-    Permute, 
-    Softmax, 
-    Activation, 
-    Add,
-    Layer,
-    LSTM
-)
+from tensorflow.keras.layers import (Dense, 
+                                     Permute, 
+                                     Softmax, 
+                                     Activation,
+                                     Add,
+                                     Layer,
+                                     Model,
+                                     LSTM)
 
 
 # TODO super().__init__(name='input_attention')
@@ -83,7 +83,7 @@ class Encoder(Layer):
         hidden_state = tf.zeros((batch_size, self.m))
         cell_state = tf.zeros((batch_size, self.m))
 
-        X_encoded = []        
+        X_encoded: List = []        
         for t in range(self.T):
             alpha_t = self.input_attention(hidden_state, cell_state, X)
 
@@ -180,6 +180,33 @@ class Decoder(Layer):
         dc_concat = tf.concat([hidden_state[:, None, :], c_t], axis=-1)
         y_hat_T = Dense(self.y_dim)(Dense(self.p)(dc_concat))
         y_hat_T = tf.squeeze(y_hat_T, axis=1)
+        return y_hat_T
+
+
+class DARNN(Model):
+    def __init__(self, T: int, m: int, p: Optional[int] = None, y_dim: int = 1) -> None:
+        super().__init__()
+        
+        self.T = T
+        self.m = m
+        self.p = p or m
+        self.y_dim = y_dim
+        
+        self.encoder = Encoder(self.T, self.m)
+        self.decoder = Decoder(self.T, self.m, self.p, self.y_dim)
+    
+    def __call__ (self, inputs):
+        # X (batch size, T, n)
+        # Y (batch siez, T-1, y_dim)
+        # y_hat_T (batch size, 1, y_dim)
+        # TODO X, Y 입력 분리
+        # Eqn. (1)
+        X = inputs[:, :, :-self.y_dim]
+        Y = inputs[:, :, -self.y_dim:]
+
+        X_encoded = self.encoder(X)
+        y_hat_T = self.decoder(Y, X_encoded)
+
         return y_hat_T
 
 
