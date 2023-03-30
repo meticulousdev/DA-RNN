@@ -1,17 +1,17 @@
 import random
+from typing import List, Optional
 
 import tensorflow as tf
 import tensorflow.keras.backend as K
 
-from tensorflow.keras.layers import (
-    Dense, 
-    Permute, 
-    Softmax, 
-    Activation, 
-    Add,
-    Layer,
-    LSTM
-)
+from tensorflow.keras.layers import (Dense, 
+                                     Permute, 
+                                     Softmax, 
+                                     Activation,
+                                     Add,
+                                     Layer,
+                                     Model,
+                                     LSTM)
 
 
 # TODO super().__init__(name='input_attention')
