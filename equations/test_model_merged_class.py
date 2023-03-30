@@ -10,8 +10,9 @@ from tensorflow.keras.layers import (Dense,
                                      Activation,
                                      Add,
                                      Layer,
-                                     Model,
                                      LSTM)
+
+from tensorflow.keras.models import Model
 
 
 # TODO super().__init__(name='input_attention')
@@ -182,7 +183,9 @@ class DARNN(Model):
     
     def __call__ (self, inputs):
         # X (batch size, T, n)
-        # Y (batch siez, T-1, y_dim)
+        # Y (batch size, T-1, y_dim)
+        # 
+        # X_encoded (batch size, T, m)
         # y_hat_T (batch size, 1, y_dim)
         # TODO X, Y 입력 분리
         # Eqn. (1)
@@ -207,8 +210,8 @@ def test_encoder_merged_class(batch_size: int, T: int, n: int, m: int):
 
     X = tf.constant(ele03, dtype=tf.float32)
 
-    da_rnn_encoder = Encoder(T, m)
-    ret = da_rnn_encoder(X)
+    darnn_encoder = Encoder(T, m)
+    ret = darnn_encoder(X)
     return ret
 
 
@@ -218,11 +221,23 @@ def test_decoder_merged_class(batch_size: int, T: int, m: int, p: int, y_dim: in
     print(tf.__version__)
     tf.random.set_seed(42)
 
-    X_encoded = tf.ones((batch_size, T, m))
+    X_encoded = tf.random.uniform((batch_size, T, m))
 
-    Y = tf.ones((batch_size, T - 1, y_dim))
-    da_rnn_decoder = Decoder(T, m, p, y_dim)
-    ret = da_rnn_decoder(X_encoded, Y)
+    Y = tf.random.uniform((batch_size, T - 1, y_dim))
+    darnn_decoder = Decoder(T, m, p, y_dim)
+    ret = darnn_decoder(X_encoded, Y)
+    return ret
+
+
+def test_darnn_merged_class(batch_size: int, T: int, m: int, p: int, y_dim: int):
+    random.seed(42)
+
+    print(tf.__version__)
+    tf.random.set_seed(42)
+
+    inputs = tf.random.uniform((batch_size, T, m + y_dim))
+    darnn = DARNN(T, m, p, y_dim)
+    ret = darnn(inputs)
     return ret
 
 
@@ -231,7 +246,7 @@ if __name__ == "__main__":
     T = 5
     n = 4
     p = 6
-    m = 4
+    m = 7
 
     y_dim = 3
 
@@ -240,3 +255,6 @@ if __name__ == "__main__":
 
     ret_decoder = test_decoder_merged_class(batch_size, T, m, p, y_dim)
     print(ret_decoder)
+
+    ret_darnn = test_darnn_merged_class(batch_size, T, m, p, y_dim)
+    print(ret_darnn)
