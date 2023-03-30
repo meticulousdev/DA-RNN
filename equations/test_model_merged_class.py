@@ -181,13 +181,14 @@ class DARNN(Model):
         self.encoder = Encoder(self.T, self.m)
         self.decoder = Decoder(self.T, self.m, self.p, self.y_dim)
     
+    # TODO X, Y shape    
+    # TODO X, Y 입력 분리 
     def __call__ (self, inputs):
         # X (batch size, T, n)
         # Y (batch size, T-1, y_dim)
         # 
         # X_encoded (batch size, T, m)
         # y_hat_T (batch size, 1, y_dim)
-        # TODO X, Y 입력 분리
         # Eqn. (1)
         X = inputs[:, :, :-self.y_dim]
         Y = inputs[:, :, -self.y_dim:]
