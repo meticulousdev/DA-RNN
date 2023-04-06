@@ -259,10 +259,4 @@ if __name__ == "__main__":
     da_rnn = DARNN(T, m, p, y_dim)
     da_rnn.compile(optimizer="rmsprop", loss="mse", metrics=["mae"])
     # da_rnn.summary()
-
-    # 2023-04-05 18:42:29.738490: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with 
-    # oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX AVX2
-    # To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
-    # 2023-04-05 18:42:30.162722: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1616] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 6005 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 2060 SUPER, pci bus id: 0000:08:00.0, 
-    # compute capability: 7.5
     
