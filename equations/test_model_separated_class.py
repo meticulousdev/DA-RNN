@@ -21,7 +21,7 @@ class InputAttention(Layer):
 
         self.T = T
 
-    def __call__(self, hidden_state, cell_state, X):
+    def call(self, hidden_state, cell_state, X):
         # hidden_state (batch size, m)
         # cell_state (batch size, m)    
         # X (batch size, T, n)
@@ -63,7 +63,7 @@ class Encoder(Layer):
         self.input_attention = InputAttention(self.T)
         self.input_lstm = LSTM(m, return_state=True)
 
-    def __call__(self, X):
+    def call(self, X):
         # X (batch size, T, n) 
         # 
         # hidden_state (batch size, m)
@@ -102,7 +102,7 @@ class TemperalAttention(Layer):
 
         self.m = m
 
-    def __call__(self, hidden_state, cell_state, X_encoded):
+    def call(self, hidden_state, cell_state, X_encoded):
         # X_encoded (batch size, T, m)
         # hidden_state (T, p)
         # cell_state (T, p)
@@ -149,7 +149,7 @@ class Decoder(Layer):
         self.temperal_attention = TemperalAttention(self.m)
         self.decoder_lstm = LSTM(self.p, return_state=True)
     
-    def __call__(self, X_encoded, Y):
+    def call(self, X_encoded, Y):
         # beta_t (batch size, T, 1)
         # c_t (batch size, 1, m)
         # yc_concat (batch size, 1, y_dim + m)
@@ -192,7 +192,7 @@ class DARNN(Model):
         self.encoder = Encoder(self.T, self.m)
         self.decoder = Decoder(self.T, self.m, self.p, self.y_dim)
     
-    def __call__ (self, X, Y):
+    def call (self, X, Y):
         # X (batch size, T, n)
         # Y (batch size, T-1, y_dim)
         # 

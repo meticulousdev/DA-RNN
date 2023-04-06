@@ -25,7 +25,7 @@ class Encoder(Layer):
         
         self.input_lstm = LSTM(m, return_state=True)
 
-    def __call__(self, X):
+    def call(self, X):
         # X (batch size, T, n) 
         # 
         # hidden_state (batch size, m)
@@ -101,7 +101,7 @@ class Decoder(Layer):
 
         self.decoder_lstm = LSTM(self.p, return_state=True)
     
-    def __call__(self, X_encoded, Y):
+    def call(self, X_encoded, Y):
         # beta_t (batch size, T, 1)
         # c_t (batch size, 1, m)
         # yc_concat (batch size, 1, y_dim + m)
@@ -178,7 +178,7 @@ class DARNN(Model):
         self.encoder = Encoder(self.T, self.m)
         self.decoder = Decoder(self.T, self.m, self.p, self.y_dim)
     
-    def __call__ (self, X, Y):
+    def call (self, X, Y):
         # X (batch size, T, n)
         # Y (batch size, T-1, y_dim)
         # 
