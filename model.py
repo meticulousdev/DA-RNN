@@ -2,6 +2,7 @@ import random
 from typing import List, Optional
 
 import tensorflow as tf
+from tensorflow import keras
 import tensorflow.keras.backend as K
 
 from tensorflow.keras.layers import (Dense, 
@@ -256,7 +257,19 @@ if __name__ == "__main__":
 
     y_dim = 3
 
+    inputs = tf.random.uniform((batch_size, T, m + y_dim))
+    # X (batch size, T, n)       : x(1), x(2), ..., x(T)
+    # Y (batch size, T-1, y_dim) : y(1), y(2), ..., y(T-1)
+    X = inputs[:, :, :-y_dim]
+    Y = inputs[:, :-1, -y_dim:]
+
     da_rnn = DARNN(T, m, p, y_dim)
+
+    inputs = keras.Input(shape=(T, n))
+    x = da_rnn(X, Y)
+    outputs = Dense(1)(x)
+    model = keras.Model(inputs, outputs)
+
     da_rnn.compile(optimizer="rmsprop", loss="mse", metrics=["mae"])
-    # da_rnn.summary()
+    da_rnn.summary()
     
